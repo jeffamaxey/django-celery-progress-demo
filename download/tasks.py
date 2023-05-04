@@ -35,20 +35,18 @@ def ProcessDownload(self, url):
 		# Process was not terminated in the timeout period
 		print('Subprocess did not terminate on time')
 
-	# Check if process was successfully completed (return code = 0)
-	if download.returncode == 0:
-		# Delete file
-		try:
-			folder = os.getcwd()
-			filepath = os.path.join(folder, filename)
-			os.remove(filepath)
-		except:
-			print('Could not delete file')
-		# Return message to update task result
-		return 'Download was successful!'
-	else:
+	if download.returncode != 0:
 		# Raise exception to indicate something wrong with task
 		raise Exception('Download timed out, try again')
+	# Delete file
+	try:
+		folder = os.getcwd()
+		filepath = os.path.join(folder, filename)
+		os.remove(filepath)
+	except:
+		print('Could not delete file')
+	# Return message to update task result
+	return 'Download was successful!'
 
 def update_progress(self, proc):
 	# Create progress recorder instance
@@ -69,13 +67,13 @@ def update_progress(self, proc):
 			# Print percentage value (celery worker output)
 			print(percentage)
 			# Build description
-			progress_description = 'Downloading (' + str(percentage) + '%)'
+			progress_description = f'Downloading ({str(percentage)}%)'
 			# Update progress recorder
 			progress_recorder.set_progress(int(percentage), 100, description=progress_description)
 		else:
 			# Print line
 			print(linestr)
-			
+
 		# Sleep for 100ms
 		time.sleep(0.1)
 		

@@ -9,23 +9,22 @@ def demo_view(request):
 		# Get form instance
 		form = DownloadForm(request.POST)
 
-		if form.is_valid():
-			# Retrieve URL from form data
-			url = form.cleaned_data['url']
-
-			print(f'Downloading: {url}')
-			# Create Task
-			download_task = ProcessDownload.delay(url)
-			# Get ID
-			task_id = download_task.task_id
-			# Print Task ID
-			print (f'Celery Task ID: {task_id}')
-
-			# Return demo view with Task ID
-			return render(request, 'progress.html', {'form': form, 'task_id': task_id})
-		else:
+		if not form.is_valid():
 			# Return demo view
 			return render(request, 'progress.html', {'form': form})
+		# Retrieve URL from form data
+		url = form.cleaned_data['url']
+
+		print(f'Downloading: {url}')
+		# Create Task
+		download_task = ProcessDownload.delay(url)
+		# Get ID
+		task_id = download_task.task_id
+		# Print Task ID
+		print (f'Celery Task ID: {task_id}')
+
+		# Return demo view with Task ID
+		return render(request, 'progress.html', {'form': form, 'task_id': task_id})
 	else:
 		# Get form instance
 		form = DownloadForm()
